@@ -1,6 +1,7 @@
 ﻿using System;
 using LazyCache;
 using LazyCache.Providers;
+using LazyCache.Providers.MemoryCaches;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

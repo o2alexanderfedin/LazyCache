@@ -2,6 +2,7 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using LazyCache.Providers;
+using LazyCache.Providers.MemoryCaches;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace LazyCache.Benchmarks

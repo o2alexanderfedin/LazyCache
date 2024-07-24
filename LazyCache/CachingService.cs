@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LazyCache.Providers;
+using LazyCache.Providers.MemoryCaches;
 using Microsoft.Extensions.Caching.Memory;
+using MemoryCache = LazyCache.Providers.FilesCaches.MemoryCache;
 
 namespace LazyCache
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     public class CachingService : IAppCache
     {
-        private readonly Lazy<ICacheProvider> cacheProvider;
+        private readonly Lazy<ICacheProvider> _cacheProvider;
 
-        private readonly int[] keyLocks;
+        private readonly int[] _keyLocks;
 
         public CachingService() : this(DefaultCacheProvider)
         {
@@ -20,17 +22,17 @@ namespace LazyCache
 
         public CachingService(Lazy<ICacheProvider> cacheProvider)
         {
-            this.cacheProvider = cacheProvider ?? throw new ArgumentNullException(nameof(cacheProvider));
+            _cacheProvider = cacheProvider ?? throw new ArgumentNullException(nameof(cacheProvider));
             var lockCount = Math.Max(Environment.ProcessorCount * 8, 32);
-            keyLocks = new int[lockCount];
+            _keyLocks = new int[lockCount];
         }
 
         public CachingService(Func<ICacheProvider> cacheProviderFactory)
         {
             if (cacheProviderFactory == null) throw new ArgumentNullException(nameof(cacheProviderFactory));
-            cacheProvider = new Lazy<ICacheProvider>(cacheProviderFactory);
+            _cacheProvider = new Lazy<ICacheProvider>(cacheProviderFactory);
             var lockCount = Math.Max(Environment.ProcessorCount * 8, 32);
-            keyLocks = new int[lockCount];
+            _keyLocks = new int[lockCount];
 
         }
 
@@ -116,8 +118,8 @@ namespace LazyCache
                 });
 
             // acquire lock per key
-            uint hash = (uint)key.GetHashCode() % (uint)keyLocks.Length;
-            while (Interlocked.CompareExchange(ref keyLocks[hash], 1, 0) == 1) { Thread.Yield(); }
+            uint hash = (uint)key.GetHashCode() % (uint)_keyLocks.Length;
+            while (Interlocked.CompareExchange(ref _keyLocks[hash], 1, 0) == 1) { Thread.Yield(); }
 
             try
             {
@@ -125,7 +127,7 @@ namespace LazyCache
             }
             finally
             {
-                keyLocks[hash] = 0;
+                _keyLocks[hash] = 0;
             }
 
             try
@@ -138,8 +140,8 @@ namespace LazyCache
                     CacheProvider.Remove(key);
 
                     // acquire lock again
-                    hash = (uint)key.GetHashCode() % (uint)keyLocks.Length;
-                    while (Interlocked.CompareExchange(ref keyLocks[hash], 1, 0) == 1) { Thread.Yield(); }
+                    hash = (uint)key.GetHashCode() % (uint)_keyLocks.Length;
+                    while (Interlocked.CompareExchange(ref _keyLocks[hash], 1, 0) == 1) { Thread.Yield(); }
 
                     try
                     {
@@ -147,7 +149,7 @@ namespace LazyCache
                     }
                     finally
                     {
-                        keyLocks[hash] = 0;
+                        _keyLocks[hash] = 0;
                     }
                     result = GetValueFromLazy<T>(cacheItem, out _ /* we just evicted so type change cannot happen this time */);
                 }
@@ -176,7 +178,7 @@ namespace LazyCache
             CacheProvider.Remove(key);
         }
 
-        public virtual ICacheProvider CacheProvider => cacheProvider.Value;
+        public virtual ICacheProvider CacheProvider => _cacheProvider.Value;
 
         public virtual Task<T> GetOrAddAsync<T>(string key, Func<ICacheEntry, Task<T>> addItemFactory)
         {
@@ -196,8 +198,8 @@ namespace LazyCache
             // the AsyncLazy into the cache at one time
 
             // acquire lock
-            uint hash = (uint)key.GetHashCode() % (uint)keyLocks.Length;
-            while (Interlocked.CompareExchange(ref keyLocks[hash], 1, 0) == 1) { Thread.Yield(); }
+            uint hash = (uint)key.GetHashCode() % (uint)_keyLocks.Length;
+            while (Interlocked.CompareExchange(ref _keyLocks[hash], 1, 0) == 1) { Thread.Yield(); }
 
             object CacheFactory(ICacheEntry entry) =>
                 new AsyncLazy<T>(async () =>
@@ -214,7 +216,7 @@ namespace LazyCache
             }
             finally
             {
-                keyLocks[hash] = 0;
+                _keyLocks[hash] = 0;
             }
 
             try
@@ -227,8 +229,8 @@ namespace LazyCache
                     CacheProvider.Remove(key);
 
                     // acquire lock
-                    hash = (uint)key.GetHashCode() % (uint)keyLocks.Length;
-                    while (Interlocked.CompareExchange(ref keyLocks[hash], 1, 0) == 1) { Thread.Yield(); }
+                    hash = (uint)key.GetHashCode() % (uint)_keyLocks.Length;
+                    while (Interlocked.CompareExchange(ref _keyLocks[hash], 1, 0) == 1) { Thread.Yield(); }
 
                     try
                     {
@@ -236,7 +238,7 @@ namespace LazyCache
                     }
                     finally
                     {
-                        keyLocks[hash] = 0;
+                        _keyLocks[hash] = 0;
                     }
                     result = GetValueFromAsyncLazy<T>(cacheItem, out _ /* we just evicted so type change cannot happen this time */);
                 }

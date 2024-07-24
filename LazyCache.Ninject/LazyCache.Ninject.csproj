@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>LazyCache</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LazyCacheNinjectVersion Condition="'$(LazyCacheNinjectVersion)' == ''">1.0.0</LazyCacheNinjectVersion>
@@ -20,6 +20,7 @@
     <RepositoryUrl>https://github.com/alastairtree/LazyCache</RepositoryUrl>
     <PackageTags>LazyCache DependecyInjection ServiceCollection SingleTon Transient Ninject</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

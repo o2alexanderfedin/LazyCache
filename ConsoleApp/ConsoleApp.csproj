@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PublishAot>true</PublishAot>
+        <InvariantGlobalization>true</InvariantGlobalization>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LazyCache.Ninject\LazyCache.Ninject.csproj" />
+      <ProjectReference Include="..\LazyCache\LazyCache.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Ninject" Version="3.3.4" />
+    </ItemGroup>
+
+</Project>

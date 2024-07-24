@@ -1,5 +1,6 @@
 ﻿using System;
 using LazyCache.Providers;
+using LazyCache.Providers.MemoryCaches;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Ninject.Modules;

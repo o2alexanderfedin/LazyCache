@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LazyCacheVersion Condition="'$(LazyCacheVersion)' == ''">1.0.0</LazyCacheVersion>
     <LazyCacheVersionSuffix Condition="'$(LazyCacheVersionSuffix)' == ''"></LazyCacheVersionSuffix>
@@ -20,6 +20,8 @@
     <PackageTags>Caching Performance Speed In-memory IMemoryCache Generics ServiceCacheing Lazy Cache Lazy-Load MemoryCache CachingService AppCache ApplicationCache Memcached</PackageTags>
     <PackageReleaseNotes>See https://raw.githubusercontent.com/alastairtree/LazyCache/master/ReleaseNotes.md</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

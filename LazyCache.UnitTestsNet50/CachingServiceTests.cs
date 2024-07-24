@@ -1,4 +1,5 @@
 ﻿using LazyCache.Providers;
+using LazyCache.Providers.MemoryCaches;
 using Microsoft.Extensions.Caching.Memory;
 using NUnit.Framework;
 

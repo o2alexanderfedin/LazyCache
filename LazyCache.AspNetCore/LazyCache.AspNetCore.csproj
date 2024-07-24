@@ -1,8 +1,7 @@
-﻿<!--EXTERNAL_PROPERTIES: APPVEYOR_BUILD_NUMBER-->
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>LazyCache</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LazyCacheAspNetCoreVersion Condition="'$(LazyCacheAspNetCoreVersion)' == ''">1.0.0</LazyCacheAspNetCoreVersion>
@@ -20,6 +19,7 @@
     <RepositoryUrl>https://github.com/alastairtree/LazyCache</RepositoryUrl>
     <PackageTags>LazyCache DependecyInjection ServiceCollection Singleton Transient</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
 
