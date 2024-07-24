@@ -1,61 +1,91 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using Moq;
+// ReSharper disable HeapView.ObjectAllocation.Evident
 
-namespace LazyCache.Mocks
+namespace LazyCache.Mocks;
+
+/// <summary>
+///     A mock implementation IAppCache that does not do any caching.
+///     Useful in unit tests or for feature switching to swap in a dependency to disable all caching
+/// </summary>
+public class MockCachingService<T>
+    : IAppCache
 {
-    /// <summary>
-    ///     A mock implementation IAppCache that does not do any caching.
-    ///     Useful in unit tests or for feature switching to swap in a dependency to disable all caching
-    /// </summary>
-    public class MockCachingService : IAppCache
+    public ICacheProvider CacheProvider { get; } = MockCacheProvider().Object;
+
+    private static Mock<ICacheProvider> MockCacheProvider()
     {
-        public ICacheProvider CacheProvider { get; } = new MockCacheProvider();
-        public CacheDefaults DefaultCachePolicy { get; set; } = new CacheDefaults();
+        var mock = new Mock<ICacheProvider>(MockBehavior.Loose);
+        
+        mock.Setup(x => x.Set(It.IsNotNull<string>(), It.IsNotNull<object>(), It.IsNotNull<MemoryCacheEntryOptions>()));
+        
+        mock.Setup(x => x.Get(It.IsNotNull<string>())).Returns(null!);
+        
+        mock.Setup(x => x.GetOrCreate<T>(It.IsNotNull<string>(), It.IsNotNull<Func<ICacheEntry, T>>()))
+            .Callback<string, Func<ICacheEntry,T>>((key, func) => func(null!));
+        
+        mock.Setup(x => x.GetOrCreate<T>(It.IsNotNull<string>(), It.IsNotNull<MemoryCacheEntryOptions>(), It.IsNotNull<Func<ICacheEntry, T>>()))
+            .Callback<string, MemoryCacheEntryOptions, Func<ICacheEntry,T>>((key, policy, func) => func(null!));
 
-        public T Get<T>(string key)
-        {
-            return default(T);
-        }
+        mock.Setup(x => x.Remove(It.IsNotNull<string>()));
 
-        public T GetOrAdd<T>(string key, Func<ICacheEntry, T> addItemFactory)
-        {
-            return addItemFactory(new MockCacheEntry(key));
-        }
+        mock.Setup(x => x.GetOrCreateAsync<T>(It.IsNotNull<string>(), It.IsNotNull<Func<ICacheEntry, Task<T>>>()))
+            .Callback<string, Func<ICacheEntry, Task<T>>>((key, func) => func(null!));
 
-        public T GetOrAdd<T>(string key, Func<ICacheEntry, T> addItemFactory, MemoryCacheEntryOptions policy)
-        {
-            return addItemFactory(new MockCacheEntry(key));
-        }
+        mock.Setup(x => x.TryGetValue<T>(It.IsNotNull<object>(), out It.Ref<T>.IsAny))
+            .Throws<NotImplementedException>();
 
-        public Task<T> GetOrAddAsync<T>(string key, Func<ICacheEntry, Task<T>> addItemFactory,
-            MemoryCacheEntryOptions policy)
-        {
-            return addItemFactory(new MockCacheEntry(key));
-        }
+        mock.Setup(x => x.Dispose());
+        
+        return mock;
+    }
 
-        public void Remove(string key)
-        {
-        }
+    public CacheDefaults DefaultCachePolicy { get; set; } = new CacheDefaults();
 
-        public Task<T> GetOrAddAsync<T>(string key, Func<ICacheEntry, Task<T>> addItemFactory)
-        {
-            return addItemFactory(new MockCacheEntry(key));
-        }
+    public T Get<T>(string key)
+    {
+        return default(T);
+    }
 
-        public Task<T> GetAsync<T>(string key)
-        {
-            return Task.FromResult(default(T));
-        }
+    public T GetOrAdd<T>(string key, Func<ICacheEntry, T> addItemFactory)
+    {
+        return addItemFactory(new MockCacheEntry(key));
+    }
 
-        public void Add<T>(string key, T item, MemoryCacheEntryOptions policy)
-        {
-        }
+    public T GetOrAdd<T>(string key, Func<ICacheEntry, T> addItemFactory, MemoryCacheEntryOptions policy)
+    {
+        return addItemFactory(new MockCacheEntry(key));
+    }
 
-        public bool TryGetValue<T>(string key, out T value)
-        {
-            value = default(T);
-            return true;
-        }
+    public Task<T> GetOrAddAsync<T>(string key, Func<ICacheEntry, Task<T>> addItemFactory,
+        MemoryCacheEntryOptions policy)
+    {
+        return addItemFactory(new MockCacheEntry(key));
+    }
+
+    public void Remove(string key)
+    {
+    }
+
+    public Task<T> GetOrAddAsync<T>(string key, Func<ICacheEntry, Task<T>> addItemFactory)
+    {
+        return addItemFactory(new MockCacheEntry(key));
+    }
+
+    public Task<T> GetAsync<T>(string key)
+    {
+        return Task.FromResult(default(T));
+    }
+
+    public void Add<T>(string key, T item, MemoryCacheEntryOptions policy)
+    {
+    }
+
+    public bool TryGetValue<T>(string key, out T value)
+    {
+        value = default(T);
+        return true;
     }
 }

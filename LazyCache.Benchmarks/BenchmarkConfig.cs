@@ -7,16 +7,15 @@ using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
 using Perfolizer.Horology;
 
-namespace LazyCache.Benchmarks
+namespace LazyCache.Benchmarks;
+
+public class BenchmarkConfig: ManualConfig
 {
-    public class BenchmarkConfig: ManualConfig
-    {
-        public BenchmarkConfig()
-            => AddJob(Job.ShortRun)
-              .AddDiagnoser(MemoryDiagnoser.Default)
-              .AddLogger(new ConsoleLogger())
-              .AddColumn(TargetMethodColumn.Method)
-              .AddAnalyser(EnvironmentAnalyser.Default)
-              .WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Nanosecond));
-    }
+    public BenchmarkConfig()
+        => AddJob(Job.ShortRun)
+            .AddDiagnoser(MemoryDiagnoser.Default)
+            .AddLogger(new ConsoleLogger())
+            .AddColumn(TargetMethodColumn.Method)
+            .AddAnalyser(EnvironmentAnalyser.Default)
+            .WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Nanosecond));
 }

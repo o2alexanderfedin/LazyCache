@@ -1,35 +1,30 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
-namespace CacheDatabaseQueriesApiSample
+namespace CacheDatabaseQueriesApiSample;
+
+public class DbTimeContext(DbContextOptions<DbTimeContext> options)
+    : DbContext(options)
 {
-    public class DbTimeContext : DbContext
+    private static int _databaseRequestCounter; //just for demo - don't use static fields for statistics!
+
+    // simulate a table in the database so we can get just one row with the current time
+    private DbSet<DbTimeEntity> Times { get; set; }
+
+    public static int DatabaseRequestCounter()
     {
-        private static int databaseRequestCounter; //just for demo - don't use static fields for statistics!
+        return _databaseRequestCounter;
+    }
 
-        public DbTimeContext(DbContextOptions<DbTimeContext> options)
-            : base(options)
-        {
-        }
+    public DbTimeEntity GeDbTime()
+    {
+        // get the current time from SQL server right now asynchronously (simulating a slow query)
+        var result = Times
+            .FromSql("WAITFOR DELAY '00:00:00:500'; SELECT 1 as [ID], GETDATE() as [TimeNowInTheDatabase]")
+            .Single();
 
-        // simulate a table in the database so we can get just one row with the current time
-        private DbSet<DbTimeEntity> Times { get; set; }
+        _databaseRequestCounter++;
 
-        public static int DatabaseRequestCounter()
-        {
-            return databaseRequestCounter;
-        }
-
-        public DbTimeEntity GeDbTime()
-        {
-            // get the current time from SQL server right now asynchronously (simulating a slow query)
-            var result = Times
-                .FromSql("WAITFOR DELAY '00:00:00:500'; SELECT 1 as [ID], GETDATE() as [TimeNowInTheDatabase]")
-                .Single();
-
-            databaseRequestCounter++;
-
-            return result;
-        }
+        return result;
     }
 }

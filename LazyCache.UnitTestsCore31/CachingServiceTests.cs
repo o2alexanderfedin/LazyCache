@@ -1,37 +1,35 @@
-﻿using LazyCache.Providers;
-using LazyCache.Providers.MemoryCaches;
+﻿using LazyCache.Providers.MemoryCaches;
 using Microsoft.Extensions.Caching.Memory;
 using NUnit.Framework;
 
-namespace LazyCache.UnitTestsCore31
+namespace LazyCache.UnitTestsCore31;
+
+[TestFixture]
+public class CachingServiceTests
 {
-    [TestFixture]
-    public class CachingServiceTests
+    private static CachingService BuildCache()
     {
-        private static CachingService BuildCache()
-        {
-            return new CachingService(new MemoryCacheProvider(new MemoryCache(new MemoryCacheOptions())));
-        }
+        return new CachingService(new MemoryCacheProvider(new MemoryCache(new MemoryCacheOptions())));
+    }
 
-        private IAppCache sut;
+    private IAppCache sut;
 
 
-        private const string TestKey = "testKey";
+    private const string TestKey = "testKey";
 
-        [SetUp]
-        public void BeforeEachTest()
-        {
-            sut = BuildCache();
-        }
+    [SetUp]
+    public void BeforeEachTest()
+    {
+        sut = BuildCache();
+    }
 
 
-        [Test]
-        public void GetOrAddOnCore31ReturnsTheCachedItem()
-        {
-            var cachedResult = sut.GetOrAdd(TestKey, () => new {SomeProperty = "SomeValue"});
+    [Test]
+    public void GetOrAddOnCore31ReturnsTheCachedItem()
+    {
+        var cachedResult = sut.GetOrAdd(TestKey, () => new {SomeProperty = "SomeValue"});
 
-            Assert.IsNotNull(cachedResult);
-            Assert.AreEqual("SomeValue", cachedResult.SomeProperty);
-        }
+        Assert.IsNotNull(cachedResult);
+        Assert.AreEqual("SomeValue", cachedResult.SomeProperty);
     }
 }

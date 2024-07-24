@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace LazyCache.Providers.FilesCaches;
 
@@ -21,7 +20,7 @@ internal class CacheEntryHelper
         CacheEntryStack scopes = GetOrCreateScopes();
         ScopeLease scopeLease = new ScopeLease(scopes);
         Scopes = scopes.Push(entry);
-        return (IDisposable) scopeLease;
+        return scopeLease;
     }
 
     private static CacheEntryStack GetOrCreateScopes()

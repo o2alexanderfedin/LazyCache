@@ -1,15 +1,13 @@
-﻿using CacheDatabaseQueriesApiSample;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace ApiAsyncCachingSample.Controllers
+namespace CacheDatabaseQueriesApiSample.Controllers;
+
+public class DbQueriesController : Controller
 {
-    public class DbQueriesController : Controller
+    [HttpGet]
+    [Route("api/dbQueries")]
+    public int GetDatabaseRequestCounter()
     {
-        [HttpGet]
-        [Route("api/dbQueries")]
-        public int GetDatabaseRequestCounter()
-        {
-            return DbTimeContext.DatabaseRequestCounter();
-        }
+        return DbTimeContext.DatabaseRequestCounter();
     }
 }

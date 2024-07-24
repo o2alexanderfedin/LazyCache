@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Caching.Memory;
 
-namespace LazyCache.Providers.FilesCaches
+namespace LazyCache.Providers.FilesCaches;
+
+public interface IFilesCache
+    : IMemoryCache
 {
-    public interface IFilesCache
-        : IMemoryCache
-    {
-    }
 }

@@ -2,39 +2,37 @@
 using LazyCache;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CacheDatabaseQueriesApiSample.Controllers
+namespace CacheDatabaseQueriesApiSample.Controllers;
+
+public class DbTimeController : Controller
 {
-    public class DbTimeController : Controller
+    private readonly IAppCache _cache;
+    private const string _cacheKey = "DbTimeController.Get";
+    private readonly DbTimeContext _dbContext;
+
+    public DbTimeController(DbTimeContext context, IAppCache cache)
     {
-        private readonly IAppCache cache;
-        private readonly string cacheKey = "DbTimeController.Get";
-        private readonly DbTimeContext dbContext;
+        _dbContext = context;
+        _cache = cache;
+    }
 
+    [HttpGet]
+    [Route("api/dbtime")]
+    public DbTimeEntity Get()
+    {
+        var actionThatWeWantToCache = () => _dbContext.GeDbTime();
 
-        public DbTimeController(DbTimeContext context, IAppCache cache)
-        {
-            dbContext = context;
-            this.cache = cache;
-        }
+        var cachedDatabaseTime = _cache.GetOrAdd(_cacheKey, actionThatWeWantToCache);
 
-        [HttpGet]
-        [Route("api/dbtime")]
-        public DbTimeEntity Get()
-        {
-            Func<DbTimeEntity> actionThatWeWantToCache = () => dbContext.GeDbTime();
+        return cachedDatabaseTime;
+    }
 
-            var cachedDatabaseTime = cache.GetOrAdd(cacheKey, actionThatWeWantToCache);
-
-            return cachedDatabaseTime;
-        }
-
-        [HttpDelete]
-        [Route("api/dbtime")]
-        public IActionResult DeleteFromCache()
-        {
-            cache.Remove(cacheKey);
-            var friendlyMessage = new {Message = $"Item with key '{cacheKey}' removed from server in-memory cache"};
-            return Ok(friendlyMessage);
-        }
+    [HttpDelete]
+    [Route("api/dbtime")]
+    public IActionResult DeleteFromCache()
+    {
+        _cache.Remove(_cacheKey);
+        var friendlyMessage = new {Message = $"Item with key '{_cacheKey}' removed from server in-memory cache"};
+        return Ok(friendlyMessage);
     }
 }

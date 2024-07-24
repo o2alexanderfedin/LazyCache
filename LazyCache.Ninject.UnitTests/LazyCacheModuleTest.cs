@@ -1,19 +1,18 @@
 using Ninject;
 using NUnit.Framework;
 
-namespace LazyCache.Ninject.UnitTests
+namespace LazyCache.Ninject.UnitTests;
+
+public class LazyCacheNinjectModuleTests
 {
-    public class LazyCacheNinjectModuleTests
+    [Test]
+    public void CanCreateCache()
     {
-        [Test]
-        public void CanCreateCache()
-        {
-            IKernel kernel = new StandardKernel(new LazyCacheModule());
-            IAppCache cache = kernel.Get<IAppCache>();
+        var kernel = new StandardKernel(new LazyCacheModule());
+        var cache = kernel.Get<IAppCache>();
 
-            var cached = cache.GetOrAdd("some-key", () => new object());
+        var cached = cache.GetOrAdd("some-key", () => new object());
 
-            Assert.NotNull(cached);
-        }
+        Assert.NotNull(cached);
     }
 }
