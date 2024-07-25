@@ -17,7 +17,7 @@ namespace LazyCache.Providers.FilesCaches;
 /// store its entries.
 /// </summary>
 public sealed class FilesCacheImpl
-    : IFilesCache, IDisposable
+    : IMemoryCache, IDisposable
 {
     private readonly ConcurrentDictionary<object, CacheEntry> _entries;
     private readonly ICacheStorage _storage;
