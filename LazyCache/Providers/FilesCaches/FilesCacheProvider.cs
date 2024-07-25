@@ -11,23 +11,17 @@ public sealed class FilesCacheProvider(IMemoryCache cache)
     : ICacheProvider
 {
     public void Set(string key, object item, MemoryCacheEntryOptions policy)
-    {
-        cache.Set(key, item, policy);
-    }
-
+        => cache.Set(key, item, policy);
+    
     public object Get(string key)
-    {
-        return cache.Get(key);
-    }
+        => cache.Get(key);
 
     public object GetOrCreate<T>(string key, Func<ICacheEntry, T> factory)
-    {
-        return cache.GetOrCreate(key, factory);
-    }
+        => cache.GetOrCreate(key, factory);
 
     public object GetOrCreate<T>(string key, MemoryCacheEntryOptions policy, Func<ICacheEntry, T> factory)
     {
-        if (policy == null)
+        if (policy is null)
             return cache.GetOrCreate(key, factory);
 
         if (!cache.TryGetValue(key, out var result))

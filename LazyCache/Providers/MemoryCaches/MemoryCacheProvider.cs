@@ -83,8 +83,7 @@ public sealed class MemoryCacheProvider
     {
         return _cache.TryGetValue(key, out value);
     }
-
-
+    
     public void Dispose()
     {
         _cache?.Dispose();

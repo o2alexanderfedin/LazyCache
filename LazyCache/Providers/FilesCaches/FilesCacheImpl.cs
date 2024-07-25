@@ -20,22 +20,24 @@ public sealed class FilesCacheImpl
     : IFilesCache, IDisposable
 {
     private readonly ConcurrentDictionary<object, CacheEntry> _entries;
-    
+    private readonly ICacheStorage _storage;
+
     private long _cacheSize;
     private bool _disposed;
     private readonly Action<CacheEntry> _setEntry;
     private readonly Action<CacheEntry> _entryExpirationNotification;
-    private readonly MemoryCacheOptions _options;
+    private readonly FilesCacheOptions _options;
     private DateTimeOffset _lastExpirationScan;
 
     /// <summary>
     /// Creates a new <see cref="T:LazyCache.Providers.FilesCaches.MemoryCache" /> instance.
     /// </summary>
     /// <param name="optionsAccessor">The options of the cache.</param>
-    public FilesCacheImpl(IOptions<MemoryCacheOptions> optionsAccessor)
+    public FilesCacheImpl(IOptions<FilesCacheOptions> optionsAccessor)
     {
         _options = optionsAccessor?.Value ?? throw new ArgumentNullException(nameof(optionsAccessor));
         _entries = new ConcurrentDictionary<object, CacheEntry>();
+        _storage = new FilesCacheStorageImpl(_options.StorageDir);
         _setEntry = SetEntry;
         _entryExpirationNotification = EntryExpired;
         _options.Clock ??= new SystemClock();
@@ -48,7 +50,7 @@ public sealed class FilesCacheImpl
     /// <summary>
     /// Gets the count of the current entries for diagnostic purposes.
     /// </summary>
-    public int Count => _entries.Count;
+    public int Count => _storage.Count();
 
     internal long Size => Interlocked.Read(ref _cacheSize);
 
@@ -282,7 +284,7 @@ public sealed class FilesCacheImpl
 
     private void TriggerOvercapacityCompaction()
     {
-        ThreadPool.QueueUserWorkItem((WaitCallback)(s => OvercapacityCompaction((FilesCacheImpl)s)), this);
+        ThreadPool.QueueUserWorkItem(s => OvercapacityCompaction((FilesCacheImpl)s), this);
     }
 
     private static void OvercapacityCompaction(FilesCacheImpl cache)
@@ -297,7 +299,7 @@ public sealed class FilesCacheImpl
         double valueOrDefault = nullable1.GetValueOrDefault();
         if ((num3 > valueOrDefault ? (nullable1.HasValue ? 1 : 0) : 0) == 0)
             return;
-        cache.Compact(num1 - (long)nullable2.Value, (Func<CacheEntry, long>)(entry => entry.Size.Value));
+        cache.Compact(num1 - (long)nullable2.Value, entry => entry.Size.Value);
     }
 
     /// Remove at least the given percentage (0.10 for 10%) of the total entries (or estimated memory?), according to the following policy:
@@ -309,7 +311,7 @@ public sealed class FilesCacheImpl
     ///             ?. Larger objects - estimated by object graph size, inaccurate.
     public void Compact(double percentage)
     {
-        Compact((int)(_entries.Count * percentage), (Func<CacheEntry, long>)(_ => 1L));
+        Compact((int)(_entries.Count * percentage), _ => 1L);
     }
 
     private void Compact(long removalSizeTarget, Func<CacheEntry, long> computeEntrySize)
@@ -374,7 +376,7 @@ public sealed class FilesCacheImpl
             return;
         foreach (CacheEntry cacheEntry in Enumerable.OrderBy<CacheEntry, DateTimeOffset>(
                      priorityEntries,
-                     (Func<CacheEntry, DateTimeOffset>)(entry => entry.LastAccessed)))
+                     entry => entry.LastAccessed))
         {
             cacheEntry.SetExpired(EvictionReason.Capacity);
             entriesToRemove.Add(cacheEntry);
@@ -401,9 +403,5 @@ public sealed class FilesCacheImpl
             throw new ObjectDisposedException(typeof(FilesCacheImpl).FullName);
     }
 
-    private static void ValidateCacheKey(object key)
-    {
-        if (key == null)
-            throw new ArgumentNullException(nameof(key));
-    }
+    private static void ValidateCacheKey(object key) => ArgumentNullException.ThrowIfNull(key);
 }

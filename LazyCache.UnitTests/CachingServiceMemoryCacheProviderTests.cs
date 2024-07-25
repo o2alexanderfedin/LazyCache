@@ -22,13 +22,13 @@ public class CachingServiceMemoryCacheProviderTests
     private IAppCache sut;
 
     private readonly MemoryCacheEntryOptions oneHourNonRemoveableMemoryCacheEntryOptions =
-        new MemoryCacheEntryOptions
+        new()
         {
             AbsoluteExpiration = DateTimeOffset.Now.AddHours(1),
             Priority = CacheItemPriority.NeverRemove
         };
 
-    private ComplexTestObject testObject = new ComplexTestObject();
+    private ComplexTestObject testObject = new();
 
     private class ComplexTestObject
     {

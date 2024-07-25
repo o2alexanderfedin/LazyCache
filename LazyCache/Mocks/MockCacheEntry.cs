@@ -6,7 +6,7 @@ using Microsoft.Extensions.Primitives;
 namespace LazyCache.Mocks;
 
 public class MockCacheEntry(string key)
-    : ICacheEntry
+    : ICacheEntry, IDisposable
 {
     public void Dispose()
     {

@@ -43,11 +43,11 @@ public class MemoryCacheBenchmarks
      */
 
     [Benchmark(Baseline = true), BenchmarkCategory("Init")]
-    public MemoryCache DotNetMemoryCache_Init() => new MemoryCache(new MemoryCacheOptions());
+    public MemoryCache DotNetMemoryCache_Init() => new(new MemoryCacheOptions());
 
     [Benchmark, BenchmarkCategory("Init")]
     public CachingService LazyCache_Init() =>
-        new CachingService(new MemoryCacheProvider(new MemoryCache(new MemoryCacheOptions())));
+        new(new MemoryCacheProvider(new MemoryCache(new MemoryCacheOptions())));
 
     /*
      *

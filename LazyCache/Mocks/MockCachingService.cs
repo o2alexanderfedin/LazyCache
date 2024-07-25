@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
+
 // ReSharper disable HeapView.ObjectAllocation.Evident
 
 namespace LazyCache.Mocks;
@@ -42,7 +43,7 @@ public class MockCachingService<T>
         return mock;
     }
 
-    public CacheDefaults DefaultCachePolicy { get; set; } = new CacheDefaults();
+    public CacheDefaults DefaultCachePolicy { get; set; } = new();
 
     public T Get<T>(string key)
     {

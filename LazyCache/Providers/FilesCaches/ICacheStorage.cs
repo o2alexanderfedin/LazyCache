@@ -6,5 +6,5 @@ namespace LazyCache.Providers.FilesCaches;
 
 public interface ICacheStorage
 {
-    
+    int Count();
 }

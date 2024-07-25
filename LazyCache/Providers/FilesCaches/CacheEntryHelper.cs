@@ -5,7 +5,7 @@ namespace LazyCache.Providers.FilesCaches;
 
 internal class CacheEntryHelper
 {
-    private static readonly AsyncLocal<CacheEntryStack> _scopes = new AsyncLocal<CacheEntryStack>();
+    private static readonly AsyncLocal<CacheEntryStack> _scopes = new();
 
     internal static CacheEntryStack Scopes
     {

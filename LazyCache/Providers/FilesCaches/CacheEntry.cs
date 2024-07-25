@@ -26,7 +26,7 @@ public sealed class CacheEntry
     private TimeSpan? _slidingExpiration;
     private long? _size;
     private IDisposable _scope;
-    internal readonly object _lock = new object();
+    internal readonly object _lock = new();
 
     internal CacheEntry(
         object key,
