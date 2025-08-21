@@ -54,11 +54,6 @@ public sealed class FilesCacheImpl
 
     internal long Size => Interlocked.Read(ref _cacheSize);
 
-    private ICollection<KeyValuePair<object, CacheEntry>> EntriesCollection
-    {
-        get => _entries;
-    }
-
     /// <inheritdoc />
     public ICacheEntry CreateEntry(object key)
     {
@@ -219,10 +214,12 @@ public sealed class FilesCacheImpl
 
     private void RemoveEntry(CacheEntry entry)
     {
-        if (!EntriesCollection.Remove(new KeyValuePair<object, CacheEntry>(entry.Key, entry)))
+        if (!_storage.Remove(new KeyValuePair<object, CacheEntry>(entry.Key, entry)))
             return;
-        if (_options.SizeLimit.HasValue)
+        
+        if (_options.SizeLimit.HasValue && entry.Size.HasValue)
             Interlocked.Add(ref _cacheSize, -entry.Size.Value);
+        
         entry.InvokeEvictionCallbacks();
     }
 

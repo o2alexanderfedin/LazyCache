@@ -254,6 +254,7 @@ public sealed class CacheEntry
     {
         if (_postEvictionCallbacks == null)
             return;
+        
         Task.Factory.StartNew((Action<object>)(state => InvokeCallbacks((CacheEntry)state)),
             this, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
